@@ -3,7 +3,7 @@ POST http://localhost:3000/reservations
 Content-Type: application/json
 
 {
-  "roomId": "1",
+  "roomId": "room-1",
   "userId": "bob",
   "startTime": "2026-02-01T11:00:00.000Z",
   "endTime": "2026-02-01T12:00:00.000Z"
@@ -13,4 +13,4 @@ Content-Type: application/json
 DELETE http://localhost:3000/reservations/id
 
 ### Get reservations by room id
-GET http://localhost:3000/rooms/1/reservations
+GET http://localhost:3000/rooms/room-1/reservations

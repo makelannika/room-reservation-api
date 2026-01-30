@@ -25,12 +25,6 @@ export async function createReservationHandler (
 ) {
     const { roomId, userId, startTime, endTime } = request.body;
 
-    if (!roomId || !userId || !startTime || !endTime) {
-        return reply.status(400).send({
-            message: "roomId, userId, startTime and endTime are required",
-        });
-    }
-
     const start = parseDate(startTime);
     const end = parseDate(endTime);
 
@@ -49,7 +43,7 @@ export async function createReservationHandler (
     if (isOverlapping(allReservations, roomId, start, end)) {
         return reply.status(409).send({
             message: "Reservation overlaps with an existing reservation for this room",
-    });
+        });
     }
 
     const reservation: Reservation = {

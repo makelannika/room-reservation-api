@@ -13,7 +13,7 @@ export async function deleteReservationHandler(
     const removed = deleteReservation(id);
 
     if (!removed) {
-    return reply.status(404).send({ message: "Reservation not found" });
+        return reply.status(404).send({ message: "Reservation not found" });
     }
 
     return reply.status(200).send(removed);

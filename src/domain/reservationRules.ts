@@ -12,14 +12,10 @@ export function isOverlapping(
   existingReservations: Reservation[],
   roomId: string,
   start: Date,
-  end: Date,
-  ignoreReservationId?: string
+  end: Date
 ): boolean {
   return existingReservations.some((reservation) => {
     if (reservation.roomId !== roomId) return false;
-    if (ignoreReservationId && reservation.id === ignoreReservationId) {
-      return false;
-    }
 
     const existingStart = new Date(reservation.startTime);
     const existingEnd = new Date(reservation.endTime);
@@ -35,11 +31,15 @@ export function validateReservationTime(
   const now = new Date();
 
   if (start >= end) {
-    return { valid: false, error: "startTime must be before endTime" };
+    return { 
+      valid: false, 
+      error: "startTime must be before endTime" };
   }
 
   if (start < now) {
-    return { valid: false, error: "Reservations cannot be made in the past" };
+    return { 
+      valid: false, 
+      error: "Reservations cannot be made in the past" };
   }
 
   return { valid: true };

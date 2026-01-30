@@ -1,11 +1,11 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import { randomUUID } from "crypto";
 import { ISODateString } from "../domain/reservation";
 import { Reservation } from "../domain/reservation";
 import { 
     parseDate,
     isOverlapping,
     validateReservationTime,
-    generateId,
 } from "../domain/reservationRules";
 import { 
     getAllReservations,
@@ -45,7 +45,7 @@ export async function createReservationHandler (
     if (!timeValidation.valid) {
         return reply.status(400).send({ message: timeValidation.error });
     }
-
+    
     const allReservations = getAllReservations();
     if (isOverlapping(allReservations, roomId, start, end)) {
         return reply.status(409).send({
@@ -54,7 +54,7 @@ export async function createReservationHandler (
     }
 
     const reservation: Reservation = {
-        id: generateId(),
+        id: randomUUID(),
         roomId,
         userId,
         startTime: start.toISOString(),

@@ -8,10 +8,6 @@ export function parseDate(value: string): Date | null {
   return date;
 }
 
-export function generateId(): string {
-  return Math.random().toString(36).slice(2, 10);
-}
-
 export function isOverlapping(
   existingReservations: Reservation[],
   roomId: string,

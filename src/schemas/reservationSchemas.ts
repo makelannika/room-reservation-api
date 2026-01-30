@@ -1,12 +1,22 @@
 import { ROOMS } from '../domain/rooms';
 
+const authHeaderSchema = {
+    headers: {
+        type: 'object',
+        required: ['x-user-id'],
+        properties: {
+            'x-user-id': { type: 'string', minLength: 1 },
+        },
+    },
+} as const;
+
 export const createReservationSchema = {
+    ...authHeaderSchema,
     body: {
         type: 'object',
-        required: ['roomId', 'userId', 'startTime', 'endTime'],
+        required: ['roomId', 'startTime', 'endTime'],
         properties: {
             roomId: { type: 'string', enum: [...ROOMS] },
-            userId: { type: 'string', minLength: 1 },
             startTime: { type: 'string', format: 'date-time' },
             endTime: { type: 'string', format: 'date-time' },
         },
@@ -15,6 +25,7 @@ export const createReservationSchema = {
 } as const;
 
 export const deleteReservationSchema = {
+    ...authHeaderSchema,
     params: {
         type: 'object',
         required: ['id'],

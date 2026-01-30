@@ -1,16 +1,18 @@
 ### Create a reservation
 POST http://localhost:3000/reservations
 Content-Type: application/json
+X-user-id: bob
 
 {
   "roomId": "room-1",
-  "userId": "bob",
   "startTime": "2026-02-01T11:00:00.000Z",
   "endTime": "2026-02-01T12:00:00.000Z"
 }
 
-### Delete a reservation (replace id with reservation id)
+### Delete a reservation 
+### (replace id with reservation id and x-user-id with user id)
 DELETE http://localhost:3000/reservations/id
+X-user-id: bob
 
 ### Get reservations by room id
 GET http://localhost:3000/rooms/room-1/reservations

@@ -14,16 +14,23 @@ import {
 
 interface CreateReservationBody {
     roomId: string;
-    userId: string;
     startTime: ISODateString;
     endTime: ISODateString;
 }
 
+interface CreateReservationHeaders {
+    'x-user-id': string;
+}
+
 export async function createReservationHandler (
-    request: FastifyRequest<{ Body: CreateReservationBody }>,
+    request: FastifyRequest<{ 
+        Headers: CreateReservationHeaders, 
+        Body: CreateReservationBody, 
+    }>,
     reply: FastifyReply,
 ) {
-    const { roomId, userId, startTime, endTime } = request.body;
+    const { roomId, startTime, endTime } = request.body;
+    const userId = request.headers['x-user-id'];
 
     const start = parseDate(startTime);
     const end = parseDate(endTime);

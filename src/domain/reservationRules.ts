@@ -1,46 +1,49 @@
+import { ConflictError, ValidationError } from "./errors";
 import { Reservation } from "./reservation";
 
-export function parseDate(value: string): Date | null {
+export function parseDate(value: string) {
   const date = new Date(value);
+
   if (Number.isNaN(date.getTime())) {
-    return null;
+    throw new ValidationError("Invalid ISO date string");
   }
+
   return date;
 }
 
 export function isOverlapping(
-  existingReservations: Reservation[],
+  reservations: Reservation[],
   roomId: string,
   start: Date,
   end: Date
 ): boolean {
-  return existingReservations.some((reservation) => {
-    if (reservation.roomId !== roomId) return false;
+  return reservations
+    .filter((r) => r.roomId === roomId)
+    .some((r) => {
+      const existingStart = new Date(r.startTime);
+      const existingEnd = new Date(r.endTime);
 
-    const existingStart = new Date(reservation.startTime);
-    const existingEnd = new Date(reservation.endTime);
-
-    return existingStart < end && existingEnd > start;
-  });
+      return existingStart < end && existingEnd > start;
+    });
 }
 
-export function validateReservationTime(
+export function validateReservation(
   start: Date,
-  end: Date
-): { valid: boolean; error?: string } {
+  end: Date,
+  roomId: string,
+  reservations: Reservation[]
+) {
   const now = new Date();
 
   if (start >= end) {
-    return { 
-      valid: false, 
-      error: "startTime must be before endTime" };
+    throw new ValidationError("startTime must be before endTime");
   }
 
   if (start < now) {
-    return { 
-      valid: false, 
-      error: "Reservations cannot be made in the past" };
+    throw new ValidationError("Reservations cannot be made in the past");
   }
 
-  return { valid: true };
+  if (isOverlapping(reservations, roomId, start, end)) {
+    throw new ConflictError("Reservation overlaps with an existing reservation for this room");
+  }
 }

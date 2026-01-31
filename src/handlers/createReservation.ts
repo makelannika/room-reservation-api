@@ -2,15 +2,9 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { randomUUID } from "crypto";
 import { ISODateString } from "../domain/reservation";
 import { Reservation } from "../domain/reservation";
-import { 
-    parseDate,
-    isOverlapping,
-    validateReservationTime,
-} from "../domain/reservationRules";
-import { 
-    getAllReservations,
-    createReservation,
-} from "../storage/reservationStore";
+import { parseDate, validateReservation } from "../domain/reservationRules";
+import { getAllReservations, createReservation } from "../storage/reservationStore";
+import { ConflictError, ValidationError } from "../domain/errors";
 
 interface CreateReservationBody {
     roomId: string;
@@ -29,39 +23,36 @@ export async function createReservationHandler (
     }>,
     reply: FastifyReply,
 ) {
-    const { roomId, startTime, endTime } = request.body;
-    const userId = request.headers['x-user-id'];
+    try {
+        const { roomId, startTime, endTime } = request.body;
+        const userId = request.headers['x-user-id'];
 
-    const start = parseDate(startTime);
-    const end = parseDate(endTime);
+        const start = parseDate(startTime);
+        const end = parseDate(endTime);
+        
+        const existingReservations = getAllReservations();
+        validateReservation(start, end, roomId, existingReservations);
 
-    if (!start || !end) {
-        return reply
-            .status(400)
-            .send({ message: "startTime and endTime must be valid ISO date strings" });
+        const reservation: Reservation = {
+            id: randomUUID(),
+            roomId,
+            userId,
+            startTime: start.toISOString(),
+            endTime: end.toISOString(),
+        };
+
+        createReservation(reservation);
+        return reply.status(201).send(reservation);
+
+    } catch (err) {
+        if (err instanceof ValidationError) {
+            return reply.status(400).send({ message: err.message });
+        }
+        if (err instanceof ConflictError) {
+            return reply.status(409).send({ message: err.message });
+        }
+
+        request.log.error(err);
+        return reply.status(500).send({ message: "Internal server error" });
     }
-
-    const timeValidation = validateReservationTime(start, end);
-    if (!timeValidation.valid) {
-        return reply.status(400).send({ message: timeValidation.error });
-    }
-    
-    const allReservations = getAllReservations();
-    if (isOverlapping(allReservations, roomId, start, end)) {
-        return reply.status(409).send({
-            message: "Reservation overlaps with an existing reservation for this room",
-        });
-    }
-
-    const reservation: Reservation = {
-        id: randomUUID(),
-        roomId,
-        userId,
-        startTime: start.toISOString(),
-        endTime: end.toISOString(),
-    };
-
-    createReservation(reservation);
-
-    return reply.status(201).send(reservation);
 }

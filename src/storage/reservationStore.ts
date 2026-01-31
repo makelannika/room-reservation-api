@@ -1,6 +1,6 @@
+import { NotFoundError } from "../domain/errors";
 import { Reservation } from "../domain/reservation";
 
-// In-memory "database"
 const reservations: Reservation[] = [];
 
 function cloneReservation(reservation: Reservation): Reservation {
@@ -11,17 +11,21 @@ export function createReservation(reservation: Reservation): void {
   reservations.push(cloneReservation(reservation));
 }
 
-export function findReservationById(id: string): Reservation | undefined {
+export function findReservationById(id: string): Reservation {
   const reservation = reservations.find((reservation) => reservation.id === id);
 
-  return reservation ? cloneReservation(reservation) : undefined;
+  if (!reservation) {
+    throw new NotFoundError("Reservation not found");
+  }
+
+  return cloneReservation(reservation);
 }
 
-export function deleteReservation(id: string): Reservation | undefined {
+export function deleteReservation(id: string): Reservation {
   const index = reservations.findIndex((reservation) => reservation.id === id);
   
   if (index === -1) {
-    return undefined;
+    throw new NotFoundError("Reservation not found");
   }
 
   const [removed] = reservations.splice(index, 1);

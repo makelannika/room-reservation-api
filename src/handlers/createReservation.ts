@@ -5,6 +5,7 @@ import { Reservation } from "../domain/reservation";
 import { parseDate, validateReservation } from "../domain/reservationRules";
 import { getAllReservations, createReservation } from "../storage/reservationStore";
 import { ConflictError, ValidationError } from "../domain/errors";
+import { handleError } from "./errorHandler";
 
 interface CreateReservationBody {
     roomId: string;
@@ -45,14 +46,6 @@ export async function createReservationHandler (
         return reply.status(201).send(reservation);
 
     } catch (err) {
-        if (err instanceof ValidationError) {
-            return reply.status(400).send({ message: err.message });
-        }
-        if (err instanceof ConflictError) {
-            return reply.status(409).send({ message: err.message });
-        }
-
-        request.log.error(err);
-        return reply.status(500).send({ message: "Internal server error" });
+        handleError(err, request, reply);
     }
 }

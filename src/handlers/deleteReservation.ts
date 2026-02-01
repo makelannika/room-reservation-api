@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { findReservationById, deleteReservation } from "../storage/reservationStore";
-import { ForbiddenError, NotFoundError } from "../domain/errors";
+import { ForbiddenError } from "../domain/errors";
 import { handleError } from "./errorHandler";
 
 interface DeleteReservationParams {

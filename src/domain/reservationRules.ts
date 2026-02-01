@@ -18,10 +18,10 @@ export function isOverlapping(
   end: Date
 ): boolean {
   return reservations
-    .filter((r) => r.roomId === roomId)
-    .some((r) => {
-      const existingStart = new Date(r.startTime);
-      const existingEnd = new Date(r.endTime);
+    .filter((reservation) => reservation.roomId === roomId)
+    .some((reservation) => {
+      const existingStart = new Date(reservation.startTime);
+      const existingEnd = new Date(reservation.endTime);
 
       return existingStart < end && existingEnd > start;
     });

@@ -35,11 +35,10 @@ export function deleteReservation(id: string): Reservation {
 export function findReservationsByRoomId(roomId: string): Reservation[] {
   return reservations
     .filter((reservation) => reservation.roomId === roomId)
-    .sort(
-      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-    )
+    .sort((a, b) => a.startTime.localeCompare(b.startTime))
     .map(cloneReservation);
 }
+
 
 export function getAllReservations(): Reservation[] {
   return reservations.map(cloneReservation);
